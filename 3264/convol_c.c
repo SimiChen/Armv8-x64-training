@@ -276,6 +276,42 @@ void __vShlw_c(int16_t* v1, int16_t* v2, int16_t nsh, int16_t size)
     for (i=0; i<size; i++) v1[i]=v2[i]>>(-nsh);
 }
 
+extern void __vShrw(int16_t* v1, int16_t* v2, int16_t nsh, int16_t size);
+
+void __vShrw_c(int16_t* v1, int16_t* v2, int16_t nsh, int16_t size)
+{
+  int16_t i;
+  if (nsh>=0)
+    for (i=0; i<size; i++) v1[i]=v2[i]>>nsh;
+  else
+    for (i=0; i<size; i++) v1[i]=v2[i]<<(-nsh);
+}
+
+extern void __vShldw(int32_t* v1, int32_t* v2, int16_t nsh, int16_t size);
+
+void __vShldw_c(int32_t* v1, int32_t* v2, int16_t nsh, int16_t size)
+{
+  int16_t i;
+  if (nsh>=0)
+    for (i=0; i<size; i++) v1[i]=v2[i]<<nsh;
+  else
+    for (i=0; i<size; i++) v1[i]=v2[i]>>(-nsh);
+}
+
+extern void __vShrdw(int32_t* v1, int32_t* v2, int16_t nsh, int16_t size);
+
+void __vShrdw_c(int32_t* v1, int32_t* v2, int16_t nsh, int16_t size)
+{
+  int16_t i;
+  if (nsh>=0)
+    for (i=0; i<size; i++) v1[i]=v2[i]>>nsh;
+  else
+    for (i=0; i<size; i++) v1[i]=v2[i]<<(-nsh);
+}
+
+
+
+
 int16_t random_16() {
     return (int16_t)rand()%65535 - 32767;
 }
@@ -288,7 +324,7 @@ int32_t random_32() {
 int main (){
     srand((unsigned)time( NULL ) );
     int16_t p1[16], p2[16];
-    int32_t acc;
+    int32_t acc, p3[16];
     //int16_t p1[6] = {0x1233,0x123,0x3321,0x123,0x123,-0x3321};
     //int16_t p2[6] = {0x1123,0x112,0xabc,0x1123,-0x112,0xabc};
     //int32_t acc = 0x7ff31233;
@@ -299,6 +335,7 @@ int main (){
     for (int i = 0; i < size; i++) {
         p1[i] = random_16();
         p2[i] = random_16();
+        p3[i] = random_32();
     }
     acc = random_32();
 
@@ -328,13 +365,13 @@ int main (){
     int16_t nsh = rand()%32 - 16;
     printf("nsh = %d\n", nsh);
     memcpy(p1_c, p1, sizeof(int16_t)*size);
-    __vShlw(p1, p2, nsh, size);
-    __vShlw_c(p1_c, p2, nsh, size);
+    __vShldw(ret, p3, nsh, size);
+    __vShldw_c(ret_c, p3, nsh, size);
     for (int i = 0; i < size; i++) {
-        printf("0x%x, ", p1[i]);
-        printf("0x%x, ", p1_c[i]);
+        printf("0x%x, ", ret[i]);
+        printf("0x%x, ", ret_c[i]);
         printf("\n");
-        if (p1[i] != p1_c[i]) {
+        if (ret[i] != ret_c[i]) {
             printf("Error\n");
             return -1;
         }

@@ -597,4 +597,126 @@ __vShlw:
 
     RET x30                   // Return, x30 holds the return address
 
+.global __vShrw
+
+__vShrw:
+    MOV x8, #0                // Initialize j to 0
+    SXTH x2, w2
+    CMP x2, #0
+    BGE .__vShrw_loop_positive
+
+    NEG x2, x2
+    B .__vShrw_loop_negative
+
+.__vShrw_loop_positive:
+    LSL x4, x8, #1            // Calculate the offset for loading elements from arrays
+
+    LDRH w5, [x1, x4]         // Load v2[j] into w5
+    SXTH x5, w5
+
+    ASR x5, x5, x2
+    STRH w5, [x0, x4]         // Store the result to v1[j]
+
+    ADD x8, x8, #1            // Increment j
+    CMP x8, x3                // Compare j with size
+    BLT .__vShrw_loop_positive         // Branch back to loop if j < size
+
+    RET x30                   // Return, x30 holds the return address
+
+.__vShrw_loop_negative:
+    LSL x4, x8, #1            // Calculate the offset for loading elements from arrays
+
+    LDRH w5, [x1, x4]         // Load v2[j] into w5
+    SXTH x5, w5
+
+    LSL x5, x5, x2
+    STRH w5, [x0, x4]         // Store the result to v1[j]
+
+    ADD x8, x8, #1            // Increment j
+    CMP x8, x3                // Compare j with size
+    BLT .__vShrw_loop_negative         // Branch back to loop if j < size
+
+    RET x30                   // Return, x30 holds the return address
+
+.global __vShldw
+
+__vShldw:
+    MOV x8, #0                // Initialize j to 0
+    SXTH x2, w2
+    CMP x2, #0
+    BGE .__vShldw_loop_positive
+
+    NEG x2, x2
+    B .__vShldw_loop_negative
+
+.__vShldw_loop_positive:
+    LSL x4, x8, #2            // Calculate the offset for loading elements from arrays
+
+    LDR w5, [x1, x4]         // Load v2[j] into w5
+    SXTw x5, w5
+
+    LSL x5, x5, x2
+    STR w5, [x0, x4]         // Store the result to v1[j]
+
+    ADD x8, x8, #1            // Increment j
+    CMP x8, x3                // Compare j with size
+    BLT .__vShldw_loop_positive         // Branch back to loop if j < size
+
+    RET x30                   // Return, x30 holds the return address
+
+.__vShldw_loop_negative:
+    LSL x4, x8, #2            // Calculate the offset for loading elements from arrays
+
+    LDR w5, [x1, x4]         // Load v2[j] into w5
+    SXTW x5, w5
+
+    ASR x5, x5, x2
+    STR w5, [x0, x4]         // Store the result to v1[j]
+
+    ADD x8, x8, #1            // Increment j
+    CMP x8, x3                // Compare j with size
+    BLT .__vShldw_loop_negative         // Branch back to loop if j < size
+
+    RET x30                   // Return, x30 holds the return address
+
+.global __vShrdw
+
+__vShrdw:
+    MOV x8, #0                // Initialize j to 0
+    SXTH x2, w2
+    CMP x2, #0
+    BGE .__vShrdw_loop_positive
+
+    NEG x2, x2
+    B .__vShrdw_loop_negative
+
+.__vShrdw_loop_positive:
+    LSL x4, x8, #2            // Calculate the offset for loading elements from arrays
+
+    LDR w5, [x1, x4]         // Load v2[j] into w5
+    SXTW x5, w5
+
+    ASR x5, x5, x2
+    STR w5, [x0, x4]         // Store the result to v1[j]
+
+    ADD x8, x8, #1            // Increment j
+    CMP x8, x3                // Compare j with size
+    BLT .__vShrdw_loop_positive         // Branch back to loop if j < size
+
+    RET x30                   // Return, x30 holds the return address
+
+.__vShrdw_loop_negative:
+    LSL x4, x8, #2            // Calculate the offset for loading elements from arrays
+
+    LDR w5, [x1, x4]         // Load v2[j] into w5
+    SXTW x5, w5
+
+    LSL x5, x5, x2
+    STR w5, [x0, x4]         // Store the result to v1[j]
+
+    ADD x8, x8, #1            // Increment j
+    CMP x8, x3                // Compare j with size
+    BLT .__vShrdw_loop_negative         // Branch back to loop if j < size
+
+    RET x30                   // Return, x30 holds the return address
 
