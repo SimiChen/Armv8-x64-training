@@ -780,4 +780,66 @@ __ConvFirIir:
     MOV x0, x2
     RET x30                 // Return, x30 holds the return address
 
+.global __vMovw
+.global __vMovdw
+.global __vSetw
+.global __vSetdw
+
+__vMovw:
+    MOV x8, #0               // Initialize i to 0
+
+.__vMovw_loop:
+    LSL x4, x8, #1           // Calculate the offset for loading elements from v2 and storing into v1
+
+    LDRH w5, [x1, x4]        // Load v2[i] into w5 (16-bit value)
+    STRH w5, [x0, x4]        // Store the value into v1[i] (16-bit)
+
+    ADD x8, x8, #1           // Increment i
+    CMP x8, x2               // Compare i with size
+    BLT .__vMovw_loop        // Branch back to loop if i < size
+
+    RET x30                   // Return, x30 holds the return address
+
+__vMovdw:
+    MOV x8, #0               // Initialize i to 0
+
+.__vMovdw_loop:
+    LSL x4, x8, #2           // Calculate the offset for loading elements from v2 and storing into v1
+
+    LDR w5, [x1, x4]         // Load v2[i] into w5 (32-bit value)
+    STR w5, [x0, x4]         // Store the value into v1[i] (32-bit)
+
+    ADD x8, x8, #1           // Increment i
+    CMP x8, x2               // Compare i with size
+    BLT .__vMovdw_loop       // Branch back to loop if i < size
+
+    RET x30                   // Return, x30 holds the return address
+
+__vSetw:
+    MOV x8, #0               // Initialize i to 0
+
+.__vSetw_loop:
+    LSL x4, x8, #1           // Calculate the offset for storing elements in v1
+
+    STRH w1, [x0, x4]        // Store the constant value into v1[i] (16-bit)
+
+    ADD x8, x8, #1           // Increment i
+    CMP x8, x2               // Compare i with size
+    BLT .__vSetw_loop        // Branch back to loop if i < size
+
+    RET x30                   // Return, x30 holds the return address
+
+__vSetdw:
+    MOV x8, #0               // Initialize i to 0
+
+.__vSetdw_loop:
+    LSL x4, x8, #2           // Calculate the offset for storing elements in v1
+
+    STR w1, [x0, x4]         // Store the constant value into v1[i] (32-bit)
+
+    ADD x8, x8, #1           // Increment i
+    CMP x8, x2               // Compare i with size
+    BLT .__vSetdw_loop       // Branch back to loop if i < size
+
+    RET x30                   // Return, x30 holds the return address
 

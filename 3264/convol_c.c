@@ -330,8 +330,37 @@ int32_t __ConvFirIir_c(int16_t* v1, int16_t* v2, int32_t acc)
   return acc;
 }
 
+extern void __vMovw(int16_t* v1, int16_t* v2, int16_t size);
 
+extern void __vMovdw(int32_t* v1, int32_t* v2, int16_t size);
 
+extern void __vSetw(int16_t* v1, int16_t c, int16_t size);
+
+extern void __vSetdw(int32_t* v1, int32_t c, int16_t size);
+
+void __vMovw_c(int16_t* v1, int16_t* v2, int16_t size)
+{
+  int i;
+  for (i=0; i<size; i++) v1[i]=v2[i];
+}
+
+void __vMovdw_c(int32_t* v1, int32_t* v2, int16_t size)
+{
+  int i;
+  for (i=0; i<size; i++) v1[i]=v2[i];
+}
+
+void __vSetw_c(int16_t* v1, int16_t c, int16_t size)
+{
+  int i;
+  for (i=0; i<size; i++) v1[i]=c;
+}
+
+void __vSetdw_c(int32_t* v1, int32_t c, int16_t size)
+{
+  int i;
+  for (i=0; i<size; i++) v1[i]=c;
+}
 
 int16_t random_16() {
     return (int16_t)rand()%65535 - 32767;
@@ -376,28 +405,28 @@ int main (){
     }
     printf("\n");
     printf("acc = 0x%x\n", acc);
-    
+    /*
     res = __ConvFirIir(p1,p2,acc);
     res_c = __ConvFirIir_c(p1,p2,acc);
     
     printf("res_c = %x\n",res_c);
     printf("res = %x\n",res);
+    */
     
-    /*
-    int16_t p1_c[16];
-    int16_t nsh = rand()%32 - 16;
-    printf("nsh = %d\n", nsh);
+    int16_t p1_c[size];
+    //int16_t nsh = rand()%32 - 16;
+    //printf("nsh = %d\n", nsh);
     memcpy(p1_c, p1, sizeof(int16_t)*size);
-    __vRound(ret_16, p3, size);
-    __vRound_c(ret_16_c, p3, size);
+    __vSetdw(ret_32, p3[0], size);
+    __vSetdw_c(ret_32_c, p3[0], size);
     for (int i = 0; i < size; i++) {
-        printf("0x%x, ", ret_16[i]);
-        printf("0x%x, ", ret_16_c[i]);
+        printf("0x%x, ", ret_32[i]);
+        printf("0x%x, ", ret_32_c[i]);
         printf("\n");
-        if (ret_16[i] != ret_16_c[i]) {
+        if (ret_32[i] != ret_32_c[i]) {
             printf("Error\n");
             return -1;
         }
     }
-    */
+    
 }
