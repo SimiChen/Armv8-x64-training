@@ -1,0 +1,14 @@
+chensimi@SBC-Build2204:~/codes$ vim basic2c.s
+chensimi@SBC-Build2204:~/codes$ as -g basic2c.s -o basic2s.o
+chensimi@SBC-Build2204:~/codes$ gcc -g -c basic2.c -o basic2.o
+chensimi@SBC-Build2204:~/codes$ gcc basic2.o basic2s.o -o basic2
+chensimi@SBC-Build2204:~/codes$ ./basic2
+Enter a 64-bit decimal number: 0x1234
+Output: 0x1234
+chensimi@SBC-Build2204:~/codes$ ./basic2
+Enter a 64-bit decimal number: 0xabcdef1234
+Output: 0x7fffffff
+chensimi@SBC-Build2204:~/codes$ ./basic2
+Enter a 64-bit decimal number: 0xfffffff213412332
+Output: 0xffffffff80000000
+
