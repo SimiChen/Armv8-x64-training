@@ -432,7 +432,7 @@ __Circ:
 
     RET x30                  // Return, x30 holds the return address
  
- .global __Circs
+.global __Circs
 
 __Circs:
     MOV x9, #0               // Initialize i to 0
@@ -473,5 +473,85 @@ __Circs:
     ADD x9, x9, #1           // Increment i
     CMP x9, x3               // Compare i with len
     BLT .__Circs_outer_loop  // Branch back to outer loop if i < len
+
+    RET x30                   // Return, x30 holds the return address
+
+.global __InvCirc
+
+__InvCirc:
+    MOV x9, #0               // Initialize i to 0
+
+.__InvCirc_outer_loop:
+    MOV x10, #0              // Initialize acc to 0
+    MOV x8, #0               // Initialize j to 0
+
+.__InvCirc_inner_loop:
+    LSL x4, x8, #1           // Calculate the offset for loading elements from arrays s1 and s2
+    SUB x7, x9, x8
+    LSL x7, x7, #1
+
+    LDRH w5, [x1, x4]        // Load s1[j] into w5
+    LDRH w6, [x2, x7]        // Load s2[i-j] into w6
+    SXTH x5, w5              // Sign-extend s1[j] to 32 bits
+    SXTH x6, w6              // Sign-extend s2[i-j] to 32 bits
+
+    MUL x5, x5, x6           // Multiply s1[j] and s2[i-j], store the result in x5
+    ADD x10, x10, x5         // Add the result to acc
+
+    ADD x8, x8, #1           // Increment j
+    CMP x8, x9               // Compare j with i
+    BLE .__InvCirc_inner_loop // Branch back to inner loop if j <= i
+
+    LSL x10, x10, #1         // acc << 1 (left shift by 1)
+    LSL x7, x9, #2
+    STR x10, [x0, x7]        // Store acc into dst[i]
+
+    ADD x9, x9, #1           // Increment i
+    CMP x9, x3               // Compare i with len
+    BLT .__InvCirc_outer_loop // Branch back to outer loop if i < len
+
+    RET x30                   // Return, x30 holds the return address
+
+.global __InvCircs
+
+__InvCircs:
+    MOV x9, #0               // Initialize i to 0
+    MOV x11, #MIN31
+    MOV x12, #MAX31
+
+.__InvCircs_outer_loop:
+    MOV x10, #0              // Initialize acc to 0
+    MOV x8, #0               // Initialize j to 0
+
+.__InvCircs_inner_loop:
+    LSL x4, x8, #1           // Calculate the offset for loading elements from arrays s1 and s2
+    SUB x7, x9, x8
+    LSL x7, x7, #1
+
+    LDRH w5, [x1, x4]        // Load s1[j] into w5
+    LDRH w6, [x2, x7]        // Load s2[i-j] into w6
+    SXTH x5, w5              // Sign-extend s1[j] to 32 bits
+    SXTH x6, w6              // Sign-extend s2[i-j] to 32 bits
+
+    MUL x5, x5, x6           // Multiply s1[j] and s2[i-j], store the result in x5
+    ADD x10, x10, x5         // Add the result to acc
+
+    CMP x10, x11            // Compare acc with MIN31
+    CSEL x10, x11, x10, LT  // If acc < MIN31, set acc to MIN31
+
+    CMP x10, x12            // Compare acc with MAX31
+    CSEL x10, x12, x10, GT  // If acc > MAX31, set acc to MAX31
+
+    ADD x8, x8, #1           // Increment j
+    CMP x8, x9               // Compare j with i
+    BLE .__InvCircs_inner_loop // Branch back to inner loop if j <= i
+
+    LSL x10, x10, #1         // acc << 1 (left shift by 1)
+    LSL x7, x9, #2
+    STR x10, [x0, x7]        // Store acc into dst[i]
+
+    ADD x9, x9, #1           // Increment i
+    CMP x9, x3               // Compare i with len
+    BLT .__InvCircs_outer_loop // Branch back to outer loop if i < len
 
     RET x30                   // Return, x30 holds the return address
