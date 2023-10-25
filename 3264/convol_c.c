@@ -212,6 +212,26 @@ void __Circ_c(int32_t* dst, int16_t* s1, int16_t* s2, int16_t len)
   }
 }
 
+extern void __Circs(int32_t* dst, int16_t* s1, int16_t* s2, int16_t len);
+
+void __Circs_c(int32_t* dst, int16_t* s1, int16_t* s2, int16_t len)
+{
+  int i,j;
+  int32_t acc;
+
+  for (i=0; i<len; i++)
+  {
+    acc=0;
+    for (j=i; j<len; j++)
+    {
+      acc+=s1[j]*s2[j-i];
+      if (acc<MIN31) acc=MIN31;
+      if (acc>MAX31) acc=MAX31;
+    }
+    dst[i]=acc<<1;
+  }
+}
+
 int16_t random_16() {
     return (int16_t)rand()%65535 - 32767;
 }
@@ -262,8 +282,8 @@ int main (){
     */
     int16_t p1_c[16];
     memcpy(p1_c, p1, sizeof(int16_t)*size);
-    __Circ(ret, p1, p2, size);
-    __Circ_c(ret_c, p1_c, p2, size);
+    __Circs(ret, p1, p2, size);
+    __Circs_c(ret_c, p1_c, p2, size);
     for (int i = 0; i < size; i++) {
         printf("0x%x, ", ret[i]);
         printf("0x%x, ", ret_c[i]);
