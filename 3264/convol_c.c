@@ -265,6 +265,17 @@ void __InvCircs_c(int32_t* dst, int16_t* s1, int16_t* s2, int16_t len)
   }
 }
 
+extern void __vShlw(int16_t* v1, int16_t* v2, int16_t nsh, int16_t size);
+
+void __vShlw_c(int16_t* v1, int16_t* v2, int16_t nsh, int16_t size)
+{
+  int16_t i;
+  if (nsh>=0)
+    for (i=0; i<size; i++) v1[i]=v2[i]<<nsh;
+  else
+    for (i=0; i<size; i++) v1[i]=v2[i]>>(-nsh);
+}
+
 int16_t random_16() {
     return (int16_t)rand()%65535 - 32767;
 }
@@ -314,14 +325,16 @@ int main (){
     printf("res = %x\n",res);
     */
     int16_t p1_c[16];
+    int16_t nsh = rand()%32 - 16;
+    printf("nsh = %d\n", nsh);
     memcpy(p1_c, p1, sizeof(int16_t)*size);
-    __InvCircs(ret, p1, p2, size);
-    __InvCircs_c(ret_c, p1_c, p2, size);
+    __vShlw(p1, p2, nsh, size);
+    __vShlw_c(p1_c, p2, nsh, size);
     for (int i = 0; i < size; i++) {
-        printf("0x%x, ", ret[i]);
-        printf("0x%x, ", ret_c[i]);
+        printf("0x%x, ", p1[i]);
+        printf("0x%x, ", p1_c[i]);
         printf("\n");
-        if (ret[i] != ret_c[i]) {
+        if (p1[i] != p1_c[i]) {
             printf("Error\n");
             return -1;
         }
