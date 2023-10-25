@@ -405,6 +405,7 @@ __Circ:
     MOV x8, x9               // Initialize j to i
 
 .__Circ_inner_loop:
+    //x9 -> i  x8 -> j
     LSL x4, x8, #1           // Calculate the offset for loading elements from arrays s1 and s2
     SUB x7, x8, x9
     LSL x7, x7, #1
@@ -422,8 +423,8 @@ __Circ:
     BLT .__Circ_inner_loop   // Branch back to inner loop if j < len
 
     LSL x10, x10, #1         // acc << 1 (left shift by 1)
-    LSL x7, x7, #2
-    STRW w10, [x0, x7]       // Store acc into dst[i]
+    LSL x7, x9, #2
+    STR w10, [x0, x7]        // Store acc into dst[i]
 
     ADD x9, x9, #1           // Increment i
     CMP x9, x3               // Compare i with len
