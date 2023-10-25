@@ -309,7 +309,14 @@ void __vShrdw_c(int32_t* v1, int32_t* v2, int16_t nsh, int16_t size)
     for (i=0; i<size; i++) v1[i]=v2[i]<<(-nsh);
 }
 
+extern void __vRound(int16_t* v1, int32_t* v2, int16_t size);
 
+void __vRound_c(int16_t* v1, int32_t* v2, int16_t size)
+{
+  int i;
+  for (i=0; i<size; i++)
+    v1[i]=(int16_t)((v2[i]+(int32_t)0x00008000)>>16);
+}
 
 
 int16_t random_16() {
@@ -330,7 +337,8 @@ int main (){
     //int32_t acc = 0x7ff31233;
     int16_t size = 16;
     int32_t res, res_c;
-    int ret[16], ret_c[16];
+    int32_t ret_32[16], ret_32_c[16];
+    int16_t ret_16[16], ret_16_c[16];
     
     for (int i = 0; i < size; i++) {
         p1[i] = random_16();
@@ -365,13 +373,13 @@ int main (){
     int16_t nsh = rand()%32 - 16;
     printf("nsh = %d\n", nsh);
     memcpy(p1_c, p1, sizeof(int16_t)*size);
-    __vShldw(ret, p3, nsh, size);
-    __vShldw_c(ret_c, p3, nsh, size);
+    __vRound(ret_16, p3, size);
+    __vRound_c(ret_16_c, p3, size);
     for (int i = 0; i < size; i++) {
-        printf("0x%x, ", ret[i]);
-        printf("0x%x, ", ret_c[i]);
+        printf("0x%x, ", ret_16[i]);
+        printf("0x%x, ", ret_16_c[i]);
         printf("\n");
-        if (ret[i] != ret_c[i]) {
+        if (ret_16[i] != ret_16_c[i]) {
             printf("Error\n");
             return -1;
         }

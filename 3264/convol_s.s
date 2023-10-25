@@ -720,3 +720,27 @@ __vShrdw:
 
     RET x30                   // Return, x30 holds the return address
 
+.global __vRound
+
+__vRound:
+    MOV x8, #0                // Initialize i to 0
+
+.__vRound_loop:
+    LSL x6, x8, #2
+    LSL x4, x8, #1            // Calculate the offset for loading elements from v2 and storing into v1
+
+    LDR w5, [x1, x6]          // Load v2[i] into w5 (32-bit value)
+    ADD x5, x5, #0x00008000    // Add 0x00008000 to round the value
+    LSR x5, x5, #16            // Right shift 16 bits to perform the division by 2^16 (equivalent to >> 16 in C)
+    SXTH x5, w5                // Extract the lower 16 bits (WORD16) of the result
+
+    STRH w5, [x0, x4]         // Store the rounded value into v1[i] (WORD16)
+
+    ADD x8, x8, #1            // Increment i
+    CMP x8, x2                // Compare i with size
+    BLT .__vRound_loop        // Branch back to loop if i < size
+
+    RET x30                   // Return, x30 holds the return address
+
+
+
