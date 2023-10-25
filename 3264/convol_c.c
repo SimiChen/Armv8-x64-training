@@ -318,6 +318,20 @@ void __vRound_c(int16_t* v1, int32_t* v2, int16_t size)
     v1[i]=(int16_t)((v2[i]+(int32_t)0x00008000)>>16);
 }
 
+extern int32_t __ConvFirIir(int16_t* v1, int16_t* v2, int32_t acc);
+
+int32_t __ConvFirIir_c(int16_t* v1, int16_t* v2, int32_t acc)
+{
+  int i;
+  for (i=0; i<10; i++)
+    acc+=((int32_t)v1[i]*(int32_t)v2[i])<<1;
+  for (i=10; i<20; i++)
+    acc-=((int32_t)v1[i]*(int32_t)v2[i])<<1;
+  return acc;
+}
+
+
+
 
 int16_t random_16() {
     return (int16_t)rand()%65535 - 32767;
@@ -330,15 +344,15 @@ int32_t random_32() {
 
 int main (){
     srand((unsigned)time( NULL ) );
-    int16_t p1[16], p2[16];
-    int32_t acc, p3[16];
+    int16_t size = 20;
+    int16_t p1[size], p2[size];
+    int32_t acc, p3[size];
     //int16_t p1[6] = {0x1233,0x123,0x3321,0x123,0x123,-0x3321};
     //int16_t p2[6] = {0x1123,0x112,0xabc,0x1123,-0x112,0xabc};
     //int32_t acc = 0x7ff31233;
-    int16_t size = 16;
     int32_t res, res_c;
-    int32_t ret_32[16], ret_32_c[16];
-    int16_t ret_16[16], ret_16_c[16];
+    int32_t ret_32[size], ret_32_c[size];
+    int16_t ret_16[size], ret_16_c[size];
     
     for (int i = 0; i < size; i++) {
         p1[i] = random_16();
@@ -362,13 +376,14 @@ int main (){
     }
     printf("\n");
     printf("acc = 0x%x\n", acc);
-    /*
-    res = __ConvAddhS(p1,p2,size,acc);
-    res_c = __ConvAddhS_c(p1,p2,size,acc);
+    
+    res = __ConvFirIir(p1,p2,acc);
+    res_c = __ConvFirIir_c(p1,p2,acc);
     
     printf("res_c = %x\n",res_c);
     printf("res = %x\n",res);
-    */
+    
+    /*
     int16_t p1_c[16];
     int16_t nsh = rand()%32 - 16;
     printf("nsh = %d\n", nsh);
@@ -384,4 +399,5 @@ int main (){
             return -1;
         }
     }
+    */
 }

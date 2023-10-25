@@ -742,5 +742,42 @@ __vRound:
 
     RET x30                   // Return, x30 holds the return address
 
+.global __ConvFirIir
+
+__ConvFirIir:
+    MOV x8, #0              // Initialize i to 0
+
+    // First loop: accumulate the products of v1[i] and v2[i] for i in [0, 10)
+.__ConvFirIir_first_loop:
+    LSL x4, x8, #1          // Calculate the offset for loading elements from v1 and v2
+    LDRH w5, [x0, x4]       // Load v1[i] into w5
+    LDRH w6, [x1, x4]       // Load v2[i] into w6
+    SXTH x5, w5             // Sign-extend v1[i] to 32 bits
+    SXTH x6, w6             // Sign-extend v2[i] to 32 bits
+    MUL x5, x5, x6          // Multiply v1[i] and v2[i]
+    LSL x5, x5, #1          // Left shift the result by 1
+    ADD x2, x2, x5          // Accumulate the result in acc
+
+    ADD x8, x8, #1          // Increment i
+    CMP x8, #10             // Compare i with 10
+    BLT .__ConvFirIir_first_loop // Branch back to loop if i < 10
+
+    // Second loop: subtract the products of v1[i] and v2[i] for i in [10, 20)
+.__ConvFirIir_second_loop:
+    LSL x4, x8, #1          // Calculate the offset for loading elements from v1 and v2
+    LDRH w5, [x0, x4]       // Load v1[i] into w5
+    LDRH w6, [x1, x4]       // Load v2[i] into w6
+    SXTH x5, w5             // Sign-extend v1[i] to 32 bits
+    SXTH x6, w6             // Sign-extend v2[i] to 32 bits
+    MUL x5, x5, x6          // Multiply v1[i] and v2[i]
+    LSL x5, x5, #1          // Left shift the result by 1
+    SUB x2, x2, x5          // Subtract the result from acc
+
+    ADD x8, x8, #1          // Increment i
+    CMP x8, #20             // Compare i with 20
+    BLT .__ConvFirIir_second_loop // Branch back to loop if i < 20
+
+    MOV x0, x2
+    RET x30                 // Return, x30 holds the return address
 
 
